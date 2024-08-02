@@ -73,14 +73,18 @@ class UserManagementController extends Controller
                 'email'     => $request->email,
                 'password'  => Hash::make($request->password),
             ]);
-            $token = $user->createToken('auth_token')->plainTextToken;
+
+            $role = DB::table('roles')
+                ->select(['name'])
+                ->where('id', $user->id_role)
+                ->first();
+            $user->role = $role->name;
 
             return response()->json([
                 'success'   => true,
                 'message'   => 'success',
                 'data'      => [
                     'user'  => $user,
-                    'token' => 'Bearer ' . $token,
                 ],
             ], 200);
         } catch (\Throwable $th) {
