@@ -16,7 +16,8 @@ class UserManagementController extends Controller
         try {
             $uqery = DB::table('users')
                 ->select([
-                    'id', 'id_role', 'name', 'email', 'created_at', 'updated_at'
+                    'id', 'id_role', 'name', 'email', 'created_at', 'updated_at',
+                    DB::raw("(SELECT B.name FROM roles B WHERE B.id = users.id_role ) AS role"),
                 ]);
 
             if ($request->limit != null) {
