@@ -171,4 +171,26 @@ class UserManagementController extends Controller
             ], 500);
         }
     }
+
+
+    public function roles()
+    {
+        try {
+            $roles = DB::table('roles')
+                ->select(['id', 'name'])
+                ->get();
+
+            return response()->json([
+                'success'   => true,
+                'message'   => "success",
+                'data'      => $roles,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'   => false,
+                'message'   => $th->getMessage(),
+                'data'      => [],
+            ], 500);
+        }
+    }
 }

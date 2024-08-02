@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('user_management')->group(function () {
         Route::get('/', [UserManagementController::class, 'index'])->middleware("api.role:user_management_get_list");
+        Route::get('roles', [UserManagementController::class, 'roles'])->middleware("api.role:user_management_roles");
         Route::post('/', [UserManagementController::class, 'store'])->middleware("api.role:user_management_post");
         Route::put('/{user}', [UserManagementController::class, 'update'])->middleware("api.role:user_management_put");
         Route::delete('/{user}', [UserManagementController::class, 'delete'])->middleware("api.role:user_management_delete");
