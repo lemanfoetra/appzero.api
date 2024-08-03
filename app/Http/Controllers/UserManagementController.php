@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -25,9 +26,17 @@ class UserManagementController extends Controller
             } else {
                 $uqery->limit(100);
             }
-
             if ($request->offset != null) {
                 $uqery->offset($request->offset);
+            }
+
+            // SEARCH
+            if ($request->search != null) {
+                $search = $request->search;
+                $uqery->where(function (Builder $builder) use ($search) {
+                    $builder->orWhere('users.name',  "LIKE", '%' . $search . '%')
+                        ->orWhere('users.email', "LIKE", '%' . $search . '%');
+                });
             }
 
             $users = $uqery->orderBy('updated_at', 'DESC')
