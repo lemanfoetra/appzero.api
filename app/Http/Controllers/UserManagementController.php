@@ -15,43 +15,21 @@ class UserManagementController extends Controller
     public function index(Request $request)
     {
         try {
-            $uqery = DB::table('users')
-                ->select([
-                    'id', 'id_role', 'name', 'email', 'created_at', 'updated_at',
-                    DB::raw("(SELECT B.name FROM roles B WHERE B.id = users.id_role ) AS role"),
-                ]);
-
-            if ($request->limit != null) {
-                $uqery->limit($request->limit);
-            } else {
-                $uqery->limit(100);
-            }
-            if ($request->offset != null) {
-                $uqery->offset($request->offset);
-            }
-
-            // SEARCH
-            if ($request->search != null) {
-                $search = $request->search;
-                $uqery->where(function (Builder $builder) use ($search) {
-                    $builder->orWhere('users.name',  "LIKE", '%' . $search . '%')
-                        ->orWhere('users.email', "LIKE", '%' . $search . '%');
-                });
-            }
-
-            $users = $uqery->orderBy('updated_at', 'DESC')
-                ->get();
+            $users = $this->getUser($request);
+            $totalUser = $this->getCountUser($request);
 
             return response()->json([
                 'success'   => true,
                 'message'   => '',
                 'data'      => $users,
+                'total'     => $totalUser,
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'success'   => false,
                 'message'   => $th->getMessage(),
                 'data'      => [],
+                'total'     => 0,
             ], 500);
         }
     }
@@ -206,5 +184,54 @@ class UserManagementController extends Controller
                 'data'      => [],
             ], 500);
         }
+    }
+
+
+    private function getUser($request)
+    {
+        $uqery = DB::table('users')
+            ->select([
+                'id', 'id_role', 'name', 'email', 'created_at', 'updated_at',
+                DB::raw("(SELECT B.name FROM roles B WHERE B.id = users.id_role ) AS role"),
+            ]);
+
+        if ($request->limit != null) {
+            $uqery->limit($request->limit);
+        } else {
+            $uqery->limit(100);
+        }
+        if ($request->offset != null) {
+            $uqery->offset($request->offset);
+        }
+
+        // SEARCH
+        if ($request->search != null) {
+            $search = $request->search;
+            $uqery->where(function (Builder $builder) use ($search) {
+                $builder->orWhere('users.name',  "LIKE", '%' . $search . '%')
+                    ->orWhere('users.email', "LIKE", '%' . $search . '%');
+            });
+        }
+
+        return $uqery->orderBy('updated_at', 'DESC')->get();
+    }
+
+
+    private function getCountUser($request)
+    {
+        $uqery = DB::table('users')
+            ->select([
+                DB::raw("COUNT(id) AS total"),
+            ]);
+
+        // SEARCH
+        if ($request->search != null) {
+            $search = $request->search;
+            $uqery->where(function (Builder $builder) use ($search) {
+                $builder->orWhere('users.name',  "LIKE", '%' . $search . '%')
+                    ->orWhere('users.email', "LIKE", '%' . $search . '%');
+            });
+        }
+        return $uqery->get()->total ?? 0;
     }
 }
