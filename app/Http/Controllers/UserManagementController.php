@@ -232,6 +232,6 @@ class UserManagementController extends Controller
                     ->orWhere('users.email', "LIKE", '%' . $search . '%');
             });
         }
-        return $uqery->get()->total ?? 0;
+        return $uqery->first()->total ?? 0;
     }
 }
