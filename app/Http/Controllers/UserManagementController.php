@@ -85,6 +85,38 @@ class UserManagementController extends Controller
     }
 
 
+    public function show($user)
+    {
+        try {
+            $user = DB::table('users')
+                ->select([
+                    'id_role',
+                    'name',
+                    'email',
+                    'created_at',
+                    'updated_at'
+                ])
+                ->where('id', $user)
+                ->first();
+
+            return response()->json([
+                'success'   => true,
+                'message'   => 'success',
+                'data'      => [
+                    'user'  => $user
+                ],
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'   => false,
+                'message'   => $th->getMessage(),
+                'data'      => [],
+                'total'     => 0,
+            ], 500);
+        }
+    }
+
+
     public function update(User $user, Request $request)
     {
         try {
@@ -191,7 +223,12 @@ class UserManagementController extends Controller
     {
         $uqery = DB::table('users')
             ->select([
-                'id', 'id_role', 'name', 'email', 'created_at', 'updated_at',
+                'id',
+                'id_role',
+                'name',
+                'email',
+                'created_at',
+                'updated_at',
                 DB::raw("(SELECT B.name FROM roles B WHERE B.id = users.id_role ) AS role"),
             ]);
 
