@@ -6,6 +6,7 @@ use App\Http\Controllers\BaseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\Login;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserManagementController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -58,5 +59,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [UserManagementController::class, 'store'])->middleware("api.role:user_management_post");
         Route::put('/{user}', [UserManagementController::class, 'update'])->middleware("api.role:user_management_put");
         Route::delete('/{user}', [UserManagementController::class, 'delete'])->middleware("api.role:user_management_delete");
+    });
+
+    Route::prefix('role')->group(function () {
+        Route::get('/', [RoleController::class, 'index'])->middleware("api.role:role_get_list");
+        Route::get('/{roleId}', [RoleController::class, 'show'])
+            ->middleware("api.role:role_get_saved_role")
+            ->where(['roleId' => '[0-9]+']);
+        Route::post('/', [RoleController::class, 'store'])->middleware("api.role:role_post");
+        Route::put('/{role}', [RoleController::class, 'update'])->middleware("api.role:role_put");
+        Route::delete('/{roleId}', [RoleController::class, 'delete'])->middleware("api.role:role_delete");
     });
 });
