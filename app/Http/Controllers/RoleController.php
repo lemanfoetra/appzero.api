@@ -100,11 +100,11 @@ class RoleController extends Controller
 
 
 
-    public function update(Role $role, Request $request)
+    public function update($roleId, Request $request)
     {
         try {
             $validation = [
-                'name' => "required|string|max:255|unique:roles,name,{$role->id}",
+                'name' => "required|string|max:255|unique:roles,name,{$roleId}",
             ];
             $validator = Validator::make($request->all(), $validation);
 
@@ -122,14 +122,18 @@ class RoleController extends Controller
             ];
 
             DB::table('roles')
-                ->where('id', $role->id)
+                ->where('id', $roleId)
                 ->update($data);
+
+            $role = DB::table('roles')
+                ->where('id', $roleId)
+                ->first();
 
             return response()->json([
                 'success'   => true,
                 'message'   => 'success',
                 'data'      => [
-                    'user'  => $data,
+                    'role'  => $role,
                 ],
             ], 200);
         } catch (\Throwable $th) {
