@@ -169,4 +169,67 @@ class RoleController extends Controller
             ], 500);
         }
     }
+
+
+    public function roleMenus($roleId)
+    {
+        try {
+            $menus = DB::table('role_menus')
+                ->select([
+                    "role_menus.*",
+                    "menus.menu",
+                    "menus.link"
+                ])
+                ->join("menus", "menus.id", "=", "role_menus.id_menus")
+                ->where('role_menus.id_roles', $roleId)
+                ->get();
+
+            return response()->json([
+                'success'   => true,
+                'message'   => 'success',
+                'data'      => [
+                    'menus'  => $menus
+                ],
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'   => false,
+                'message'   => $th->getMessage(),
+                'data'      => [],
+            ], 500);
+        }
+    }
+
+
+    public function roleApis($roleId)
+    {
+        try {
+            $apis = DB::table('role_api_modules')
+                ->select([
+                    "role_api_modules.*",
+                    "api_modules.name",
+                    "api_modules.method",
+                    "api_modules.key",
+                    "api_modules.url",
+                    "api_modules.description",
+                ])
+                ->join("api_modules", "api_modules.id", "=", "role_api_modules.id_api_module")
+                ->where('role_api_modules.id_roles', $roleId)
+                ->get();
+
+            return response()->json([
+                'success'   => true,
+                'message'   => 'success',
+                'data'      => [
+                    'apis'  => $apis
+                ],
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'   => false,
+                'message'   => $th->getMessage(),
+                'data'      => [],
+            ], 500);
+        }
+    }
 }

@@ -69,5 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [RoleController::class, 'store'])->middleware("api.role:role_post");
         Route::put('/{roleId}', [RoleController::class, 'update'])->middleware("api.role:role_put");
         Route::delete('/{roleId}', [RoleController::class, 'delete'])->middleware("api.role:role_delete");
+        Route::get('/{roleId}/menus', [RoleController::class, 'roleMenus'])->middleware("api.role:role_menus")->where(['roleId' => '[0-9]+']);
+        Route::get('/{roleId}/apis', [RoleController::class, 'roleApis'])->middleware("api.role:role_apis")->where(['roleId' => '[0-9]+']);
     });
 });
