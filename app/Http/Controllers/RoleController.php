@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Role;
+use App\Models\RoleMenu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -171,6 +172,34 @@ class RoleController extends Controller
     }
 
 
+    public function menus()
+    {
+        try {
+            $menus = DB::table('menus')
+                ->select([
+                    "menus.id",
+                    "menus.menu",
+                    "menus.link"
+                ])
+                ->get();
+
+            return response()->json([
+                'success'   => true,
+                'message'   => 'success',
+                'data'      => [
+                    'menus'  => $menus
+                ],
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'   => false,
+                'message'   => $th->getMessage(),
+                'data'      => [],
+            ], 500);
+        }
+    }
+
+
     public function roleMenus($roleId)
     {
         try {
@@ -196,6 +225,70 @@ class RoleController extends Controller
                 'success'   => false,
                 'message'   => $th->getMessage(),
                 'data'      => [],
+            ], 500);
+        }
+    }
+
+
+    public function roleMenuSubmit($roleId, Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'id_menus' => 'required|numeric',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success'       => false,
+                    'message'       => $validator->errors(),
+                    'message_type'  => 'array',
+                    'data'          => [],
+                ], 422);
+            }
+
+            $menus = RoleMenu::create([
+                'id_menus'      => $request->id_menus,
+                'id_roles'      => $roleId,
+            ]);
+
+            return response()->json([
+                'success'   => true,
+                'message'   => 'success',
+                'data'      => [
+                    'menu'  => $menus,
+                ],
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'       => false,
+                'message'       => $th->getMessage(),
+                'message_type'  => 'string',
+                'data'          => [],
+            ], 200);
+        }
+    }
+
+
+    public function roleMenuDestroy($roleId, $menuId)
+    {
+        try {
+            DB::table('role_menus')
+                ->where('id_roles', $roleId)
+                ->where('id_menus', $menuId)
+                ->delete();
+
+            return response()->json([
+                'success'       => true,
+                'message'       => 'success',
+                'message_type'  => 'string',
+                'data'          => [],
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'       => false,
+                'message'       => $th->getMessage(),
+                'message_type'  => 'string',
+                'data'          => [],
             ], 500);
         }
     }
