@@ -284,7 +284,7 @@ class RoleController extends Controller
         try {
             DB::table('role_menus')
                 ->where('id_roles', $roleId)
-                ->where('id_menus', $menuId)
+                ->where('id', $menuId)
                 ->delete();
 
             return response()->json([
