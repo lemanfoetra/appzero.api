@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Role;
+use App\Models\RoleApiModule;
 use App\Models\RoleMenu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -304,21 +305,31 @@ class RoleController extends Controller
     }
 
 
-    public function roleApis($roleId)
+    public function roleMenuApis($roleId, $menuId)
     {
         try {
-            $apis = DB::table('role_api_modules')
+            $apis = DB::table('api_modules')
                 ->select([
-                    "role_api_modules.*",
-                    "api_modules.name",
-                    "api_modules.method",
-                    "api_modules.key",
-                    "api_modules.url",
-                    "api_modules.description",
+                    "api_modules.*",
+                    "menus.menu",
+                    "menus.link",
                 ])
-                ->join("api_modules", "api_modules.id", "=", "role_api_modules.id_api_module")
-                ->where('role_api_modules.id_roles', $roleId)
+                ->join("menus", "menus.id", "=", "api_modules.id_menus")
+                ->where('api_modules.id_menus', $menuId)
                 ->get();
+
+            foreach ($apis as $key => $api) {
+                $access = DB::table('role_api_modules')
+                    ->select(["id"])
+                    ->where('id_api_module', $api->id)
+                    ->where('id_roles', $roleId)
+                    ->first();
+                if (!empty($access) && $access->id !== null) {
+                    $apis[$key]->access = 'Y';
+                } else {
+                    $apis[$key]->access = 'N';
+                }
+            }
 
             return response()->json([
                 'success'   => true,
@@ -333,6 +344,81 @@ class RoleController extends Controller
                 'message'   => $th->getMessage(),
                 'data'      => [],
             ], 500);
+        }
+    }
+
+
+    public function roleMenuApisSubmit($roleId, $menuId, Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'id_api_module' => 'required|numeric',
+                'access'        => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success'       => false,
+                    'message'       => $validator->errors(),
+                    'message_type'  => 'array',
+                    'data'          => [],
+                ], 422);
+            }
+
+            if ($request->access == 'Y') {
+                $old = DB::table('role_api_modules')
+                    ->where('id_roles', $roleId)
+                    ->where('id_api_module', $request->id_api_module)
+                    ->first();
+
+                if (empty($old)) {
+                    RoleApiModule::create([
+                        'id_api_module'      => $request->id_api_module,
+                        'id_roles'      => $roleId,
+                    ]);
+                }
+            } else if ($request->access == 'N') {
+                DB::table('role_api_modules')
+                    ->where('id_roles', $roleId)
+                    ->where('id_api_module', $request->id_api_module)
+                    ->delete();
+            }
+
+            $result = DB::table('api_modules')
+                ->select([
+                    "api_modules.*",
+                    "menus.menu",
+                    "menus.link",
+                ])
+                ->join("menus", "menus.id", "=", "api_modules.id_menus")
+                ->where('api_modules.id', $request->id_api_module)
+                ->first();
+
+            $access = DB::table('role_api_modules')
+                ->select(["id"])
+                ->where('id_api_module', $result->id)
+                ->where('id_roles', $roleId)
+                ->first();
+            if (!empty($access) && $access->id !== null) {
+                $result->access = 'Y';
+            } else {
+                $result->access = 'N';
+            }
+
+            return response()->json([
+                'success'   => true,
+                'message'   => 'success',
+                'data'      => [
+                    'api'   => $result,
+                ],
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'       => false,
+                'message'       => $th->getMessage(),
+                'message_type'  => 'string',
+                'data'          => [],
+            ], 200);
         }
     }
 }

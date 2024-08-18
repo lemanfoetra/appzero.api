@@ -77,7 +77,11 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware("api.role:role_menus_delete")
             ->where(['roleId' => '[0-9]+', 'menuId' => '[0-9]+']);
 
-
-        Route::get('/{roleId}/apis', [RoleController::class, 'roleApis'])->middleware("api.role:role_apis")->where(['roleId' => '[0-9]+']);
+        Route::get('/{roleId}/menus/{menuId}/apis', [RoleController::class, 'roleMenuApis'])
+            ->middleware("api.role:role_menu_apis")
+            ->where(['roleId' => '[0-9]+'], ['menuId' => '[0-9]+']);
+        Route::post('/{roleId}/menus/{menuId}/apis', [RoleController::class, 'roleMenuApisSubmit'])
+            ->middleware("api.role:role_menu_apis_post")
+            ->where(['roleId' => '[0-9]+'], ['menuId' => '[0-9]+']);
     });
 });
