@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Role;
 use App\Models\RoleApiModule;
 use App\Models\RoleMenu;
+use App\Models\RoleMenuAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class RoleController extends Controller
 {
@@ -214,6 +216,21 @@ class RoleController extends Controller
                 ->where('role_menus.id_roles', $roleId)
                 ->get();
 
+            // GET ACCESS FUNCTION
+            foreach ($menus as $key => $menu) {
+                $access = [];
+                $accessFunctions = DB::table('role_menu_accesses')
+                    ->select(['access_code'])
+                    ->where('id_menus', $menu->id_menus)
+                    ->where('id_roles', $menu->id_roles)
+                    ->get();
+                foreach ($accessFunctions as $acc) {
+                    $access = array_merge($access, [$acc->access_code]);
+                }
+
+                $menus[$key]->access_function = $access;
+            }
+
             return response()->json([
                 'success'   => true,
                 'message'   => 'success',
@@ -410,6 +427,71 @@ class RoleController extends Controller
                 'message'   => 'success',
                 'data'      => [
                     'api'   => $result,
+                ],
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'       => false,
+                'message'       => $th->getMessage(),
+                'message_type'  => 'string',
+                'data'          => [],
+            ], 200);
+        }
+    }
+
+
+    public function roleMenuAccessSubmit($roleId, $menuId, Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'access_code'        => 'required',
+                'access_status'      => [
+                    'required',
+                    Rule::in(["Y", "N"])
+                ]
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success'       => false,
+                    'message'       => $validator->errors(),
+                    'message_type'  => 'array',
+                    'data'          => [],
+                ], 422);
+            }
+
+            if ($request->access_status == 'Y') {
+                $old = DB::table('role_menu_accesses')
+                    ->where('id_roles', $roleId)
+                    ->where('id_menus', $menuId)
+                    ->where('access_code', $request->access_code)
+                    ->first();
+
+                if (empty($old)) {
+                    RoleMenuAccess::create([
+                        'id_menus'      => $menuId,
+                        'id_roles'      => $roleId,
+                        "access_code"   => $request->access_code,
+                    ]);
+                }
+            } else if ($request->access_status == 'N') {
+                DB::table('role_menu_accesses')
+                    ->where('id_roles', $roleId)
+                    ->where('id_menus', $menuId)
+                    ->where('access_code', $request->access_code)
+                    ->delete();
+            }
+
+            return response()->json([
+                'success'   => true,
+                'message'   => 'success',
+                'data'      => [
+                    'access'   => [
+                        'id_roles'  => $roleId,
+                        'id_menus'  => $menuId,
+                        'access_code'   => $request->access_code,
+                        'access_status' => $request->access_status,
+                    ],
                 ],
             ], 200);
         } catch (\Throwable $th) {

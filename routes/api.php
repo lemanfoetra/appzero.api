@@ -76,6 +76,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{roleId}/menus/{menuId}', [RoleController::class, 'roleMenuDestroy'])
             ->middleware("api.role:role_menus_delete")
             ->where(['roleId' => '[0-9]+', 'menuId' => '[0-9]+']);
+        Route::post('/{roleId}/menus/{menuId}/access', [RoleController::class, 'roleMenuAccessSubmit'])
+            ->middleware("api.role:role_menus_access_post")
+            ->where(['roleId' => '[0-9]+', 'menuId' => '[0-9]+']);
 
         Route::get('/{roleId}/menus/{menuId}/apis', [RoleController::class, 'roleMenuApis'])
             ->middleware("api.role:role_menu_apis")
