@@ -93,7 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('master_api')->group(function () {
         Route::get('/', [MasterApiController::class, 'index'])->middleware("api.role:master_api_get_list");
         Route::get('/{api}', [MasterApiController::class, 'show'])
-            ->middleware("api.role:master_api_get_saved_user")
+            ->middleware("api.role:master_api_get")
             ->where(['api' => '[0-9]+']);
 
         Route::get('/menus', [MasterApiController::class, 'menus'])->middleware("api.role:master_api_menus");

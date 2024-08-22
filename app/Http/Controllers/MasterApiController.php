@@ -213,6 +213,40 @@ class MasterApiController extends Controller
     }
 
 
+    public function show($api)
+    {
+        try {
+            $api = DB::table('api_modules')
+                ->select([
+                    'name',
+                    'method',
+                    'key',
+                    'url',
+                    'description',
+                    'updated_at',
+                    DB::raw("(SELECT B.menu FROM menus B WHERE B.id = api_modules.id_menus ) AS menu"),
+                ])
+                ->where('id', $api)
+                ->first();
+
+            return response()->json([
+                'success'   => true,
+                'message'   => 'success',
+                'data'      => [
+                    'api'  => $api
+                ],
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'   => false,
+                'message'   => $th->getMessage(),
+                'data'      => [],
+                'total'     => 0,
+            ], 500);
+        }
+    }
+
+
     private function getListData($request)
     {
         $uqery = DB::table('api_modules')
