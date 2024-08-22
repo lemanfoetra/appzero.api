@@ -6,6 +6,7 @@ use App\Http\Controllers\BaseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\Login;
+use App\Http\Controllers\MasterApiController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserManagementController;
 use Illuminate\Http\Request;
@@ -86,5 +87,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{roleId}/menus/{menuId}/apis', [RoleController::class, 'roleMenuApisSubmit'])
             ->middleware("api.role:role_menu_apis_post")
             ->where(['roleId' => '[0-9]+'], ['menuId' => '[0-9]+']);
+    });
+
+
+    Route::prefix('master_api')->group(function () {
+        Route::get('/', [MasterApiController::class, 'index'])->middleware("api.role:master_api_get_list");
+        Route::get('/{api}', [MasterApiController::class, 'show'])
+            ->middleware("api.role:master_api_get_saved_user")
+            ->where(['api' => '[0-9]+']);
+
+        Route::get('/menus', [MasterApiController::class, 'menus'])->middleware("api.role:master_api_menus");
+        Route::post('/', [MasterApiController::class, 'store'])->middleware("api.role:master_api_post");
+        Route::put('/{api}', [MasterApiController::class, 'update'])->middleware("api.role:master_api_put");
+        Route::delete('/{api}', [MasterApiController::class, 'delete'])->middleware("api.role:master_api_delete");
     });
 });
