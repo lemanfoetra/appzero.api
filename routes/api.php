@@ -98,7 +98,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/menus', [MasterApiController::class, 'menus'])->middleware("api.role:master_api_menus");
         Route::post('/', [MasterApiController::class, 'store'])->middleware("api.role:master_api_post");
-        Route::put('/{api}', [MasterApiController::class, 'update'])->middleware("api.role:master_api_put");
-        Route::delete('/{api}', [MasterApiController::class, 'delete'])->middleware("api.role:master_api_delete");
+        Route::put('/{api}', [MasterApiController::class, 'update'])->middleware("api.role:master_api_put")->where(['api' => '[0-9]+']);;
+        Route::delete('/{api}', [MasterApiController::class, 'delete'])->middleware("api.role:master_api_delete")->where(['api' => '[0-9]+']);;
     });
 });

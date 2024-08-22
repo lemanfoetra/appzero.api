@@ -92,6 +92,8 @@ class MasterApiController extends Controller
                 'header'        => $request->header,
                 'body'          => $request->body,
                 'response'      => $request->response,
+                'created_at'    => date('Y-m-d H:i:s'),
+                'updated_at'    => date('Y-m-d H:i:s'),
             ]);
 
             $menu = DB::table('menus')
@@ -119,20 +121,16 @@ class MasterApiController extends Controller
     }
 
 
-    public function update(ApiModule $user, Request $request)
+    public function update(ApiModule $api, Request $request)
     {
         try {
             $validation = [
-                'id_role' => 'required|numeric',
-                'name' => 'required|string|max:255',
-                'email' => "required|string|email|max:255|unique:users,email,{$user->id}",
+                'name'          => 'required|string|max:255',
+                'method'        => 'required|string|max:10',
+                'key'           => "required|string|max:255|unique:api_modules,key,{$api->id}",
+                'url'           => 'required|max:255',
+                'description'   => 'required',
             ];
-
-            if (isset($request->password)) {
-                $validation = array_merge($validation, [
-                    'password' => 'required|string|min:8|confirmed'
-                ]);
-            }
             $validator = Validator::make($request->all(), $validation);
 
             if ($validator->fails()) {
@@ -145,20 +143,39 @@ class MasterApiController extends Controller
             }
 
             $data = [
-                'id_role'   => $request->id_role,
-                'name'      => $request->name,
-                'email'     => $request->email,
+                'id_menus'      => $request->id_menus,
+                'name'          => $request->name,
+                'method'        => $request->method,
+                'key'           => $request->key,
+                'url'           => $request->url,
+                'query_param'   => $request->query_param,
+                'description'   => $request->description,
+                'header'        => $request->header,
+                'body'          => $request->body,
+                'response'      => $request->response,
+                'updated_at'    => date('Y-m-d H:i:s'),
             ];
-
-            DB::table('users')
-                ->where('id', $user->id)
+            DB::table('api_modules')
+                ->where('id', $api->id)
                 ->update($data);
+
+            $api = DB::table('api_modules')
+                ->where('id', $api->id)
+                ->select([
+                    'name',
+                    'method',
+                    'key',
+                    'url',
+                    'description',
+                    'updated_at',
+                    DB::raw("(SELECT B.menu FROM menus B WHERE B.id = api_modules.id_menus ) AS menu"),
+                ])->first();
 
             return response()->json([
                 'success'   => true,
                 'message'   => 'success',
                 'data'      => [
-                    'user'  => $data,
+                    'api'  => $api,
                 ],
             ], 200);
         } catch (\Throwable $th) {
