@@ -189,6 +189,30 @@ class MasterApiController extends Controller
     }
 
 
+    public function delete($api)
+    {
+        try {
+            DB::table('api_modules')
+                ->where('id', $api)
+                ->limit(1)
+                ->delete();
+
+            return response()->json([
+                'success'   => true,
+                'message'   => 'success',
+                'data'      => [],
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'       => false,
+                'message'       => $th->getMessage(),
+                'message_type'  => 'string',
+                'data'          => [],
+            ], 500);
+        }
+    }
+
+
     private function getListData($request)
     {
         $uqery = DB::table('api_modules')
