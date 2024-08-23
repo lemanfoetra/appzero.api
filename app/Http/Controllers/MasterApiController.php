@@ -162,6 +162,8 @@ class MasterApiController extends Controller
             $api = DB::table('api_modules')
                 ->where('id', $api->id)
                 ->select([
+                    'id',
+                    'id_menus',
                     'name',
                     'method',
                     'key',
@@ -219,6 +221,7 @@ class MasterApiController extends Controller
             $api = DB::table('api_modules')
                 ->select([
                     'id',
+                    'id_menus',
                     'name',
                     'method',
                     'key',
@@ -253,6 +256,7 @@ class MasterApiController extends Controller
         $uqery = DB::table('api_modules')
             ->select([
                 'id',
+                'id_menus',
                 'name',
                 'method',
                 'key',
