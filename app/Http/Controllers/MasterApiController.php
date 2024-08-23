@@ -266,6 +266,10 @@ class MasterApiController extends Controller
                 DB::raw("(SELECT B.menu FROM menus B WHERE B.id = api_modules.id_menus ) AS menu"),
             ]);
 
+        if ($request->id_menus != null) {
+            $uqery->where('id_menus', $request->id_menus);
+        }
+
         if ($request->limit != null) {
             $uqery->limit($request->limit);
         } else {
@@ -298,6 +302,10 @@ class MasterApiController extends Controller
             ->select([
                 DB::raw("COUNT(id) AS total"),
             ]);
+
+        if ($request->id_menus != null) {
+            $uqery->where('id_menus', $request->id_menus);
+        }
 
         // SEARCH
         if ($request->search != null) {
