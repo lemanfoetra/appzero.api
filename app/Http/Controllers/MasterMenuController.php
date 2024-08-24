@@ -215,6 +215,7 @@ class MasterMenuController extends Controller
         $parrents = DB::table('menus')
             ->select(['id', 'id_parrent', 'menu', 'link', 'urutan'])
             ->where('id_parrent', '0')
+            ->orderBy('urutan', 'asc')
             ->get();
 
         foreach ($parrents as $parrent) {
@@ -233,6 +234,7 @@ class MasterMenuController extends Controller
         $childs = DB::table('menus')
             ->select(['id', 'id_parrent', 'menu', 'link', 'urutan'])
             ->where('id_parrent', $id_menu)
+            ->orderBy('urutan', 'asc')
             ->get();
 
         foreach ($childs as $child) {
