@@ -241,6 +241,7 @@ class MasterMenuController extends Controller
             $level3 = DB::table('menus')
                 ->select(['id', 'id_parrent', 'menu', 'link', 'urutan'])
                 ->where('id_parrent', $child->id)
+                ->orderBy('urutan', 'asc')
                 ->get();
 
             $child->childs = $level3;
