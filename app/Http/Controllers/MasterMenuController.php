@@ -65,7 +65,7 @@ class MasterMenuController extends Controller
                 'id_parrent'    => 'required',
                 'menu'          => 'required|string|max:255',
                 'link'          => 'required|string|max:255',
-                'icon'          => 'required',
+                // 'icon'          => 'required',
                 'urutan'        => 'required',
             ]);
 
@@ -111,7 +111,7 @@ class MasterMenuController extends Controller
                 'id_parrent'    => 'required',
                 'menu'          => 'required|string|max:255',
                 'link'          => 'required|string|max:255',
-                'icon'          => 'required',
+                // 'icon'          => 'required',
                 'urutan'        => 'required',
             ];
             $validator = Validator::make($request->all(), $validation);
