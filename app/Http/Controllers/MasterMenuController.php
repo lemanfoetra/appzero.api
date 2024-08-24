@@ -33,6 +33,31 @@ class MasterMenuController extends Controller
     }
 
 
+    public function menus()
+    {
+        try {
+            $roles = DB::table('menus')
+                ->select([
+                    'id',
+                    'menu',
+                ])
+                ->get();
+
+            return response()->json([
+                'success'   => true,
+                'message'   => "success",
+                'data'      => $roles,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'   => false,
+                'message'   => $th->getMessage(),
+                'data'      => [],
+            ], 500);
+        }
+    }
+
+
     public function store(Request $request)
     {
         try {

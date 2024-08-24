@@ -115,6 +115,8 @@ Route::middleware('auth:sanctum')->group(function () {
             ->where(['menu' => '[0-9]+']);;
         Route::delete('/{menu}', [MasterMenuController::class, 'delete'])
             ->middleware("api.role:master_menu_delete")
-            ->where(['menu' => '[0-9]+']);;
+            ->where(['menu' => '[0-9]+']);
+        Route::get('/menus', [MasterMenuController::class, 'menus'])
+            ->middleware("api.role:master_menu_menus");
     });
 });
