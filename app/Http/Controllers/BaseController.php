@@ -17,6 +17,7 @@ class BaseController extends Controller
                 ->join('menus', 'menus.id', '=', 'role_menus.id_menus')
                 ->where('role_menus.id_roles', Auth::user()->id_role)
                 ->where('menus.id_parrent', '0')
+                ->orderBy('urutan', 'asc')
                 ->get();
 
             foreach ($menus as $key => $menu) {
