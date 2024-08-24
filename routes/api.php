@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\Login;
 use App\Http\Controllers\MasterApiController;
+use App\Http\Controllers\MasterMenuController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserManagementController;
 use Illuminate\Http\Request;
@@ -100,5 +101,20 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [MasterApiController::class, 'store'])->middleware("api.role:master_api_post");
         Route::put('/{api}', [MasterApiController::class, 'update'])->middleware("api.role:master_api_put")->where(['api' => '[0-9]+']);;
         Route::delete('/{api}', [MasterApiController::class, 'delete'])->middleware("api.role:master_api_delete")->where(['api' => '[0-9]+']);;
+    });
+
+    Route::prefix('master_menu')->group(function () {
+        Route::get('/', [MasterMenuController::class, 'index'])->middleware("api.role:master_menu_get");
+        Route::get('/{menuId}', [MasterMenuController::class, 'show'])
+            ->middleware("api.role:master_menu_show")
+            ->where(['menuId' => '[0-9]+']);
+        Route::post('/', [MasterMenuController::class, 'store'])
+            ->middleware("api.role:master_menu_post");
+        Route::put('/{menu}', [MasterMenuController::class, 'update'])
+            ->middleware("api.role:master_menu_put")
+            ->where(['menu' => '[0-9]+']);;
+        Route::delete('/{menu}', [MasterMenuController::class, 'delete'])
+            ->middleware("api.role:master_menu_delete")
+            ->where(['menu' => '[0-9]+']);;
     });
 });
