@@ -32,7 +32,7 @@ class BaseController extends Controller
     {
         $menus = [];
         $parrents = DB::table('menus')
-            ->select(['menus.id', 'menus.id_parrent', 'menus.menu', 'menus.link', 'menus.urutan'])
+            ->select(['menus.id', 'menus.id_parrent', 'menus.menu', 'menus.link', 'menus.urutan', 'menus.icon'])
             ->join('role_menus', 'menus.id', '=', 'role_menus.id_menus')
             ->where('role_menus.id_roles', Auth::user()->id_role)
             ->where('menus.id_parrent', '0')
@@ -53,7 +53,7 @@ class BaseController extends Controller
     {
         $menus = [];
         $childs = DB::table('menus')
-            ->select(['menus.id', 'menus.id_parrent', 'menus.menu', 'menus.link', 'menus.urutan'])
+            ->select(['menus.id', 'menus.id_parrent', 'menus.menu', 'menus.link', 'menus.urutan', 'menus.icon'])
             ->join('role_menus', 'menus.id', '=', 'role_menus.id_menus')
             ->where('role_menus.id_roles', Auth::user()->id_role)
             ->where('menus.id_parrent', $id_menu)
@@ -62,7 +62,7 @@ class BaseController extends Controller
 
         foreach ($childs as $child) {
             $level3 = DB::table('menus')
-                ->select(['menus.id', 'menus.id_parrent', 'menus.menu', 'menus.link', 'menus.urutan'])
+                ->select(['menus.id', 'menus.id_parrent', 'menus.menu', 'menus.link', 'menus.urutan', 'menus.icon'])
                 ->join('role_menus', 'menus.id', '=', 'role_menus.id_menus')
                 ->where('role_menus.id_roles', Auth::user()->id_role)
                 ->where('menus.id_parrent', $id_menu)
