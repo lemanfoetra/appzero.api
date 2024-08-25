@@ -49,7 +49,7 @@ class ApiRoleAccess
             throw new Exception("URL_NOT_LISTING");
         }
 
-        if ($apiModule->id_menus == 0) {
+        if ($apiModule->id_menus == '0') {
             return true;
         }
 
