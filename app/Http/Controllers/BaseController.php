@@ -32,9 +32,11 @@ class BaseController extends Controller
     {
         $menus = [];
         $parrents = DB::table('menus')
-            ->select(['id', 'id_parrent', 'menu', 'link', 'urutan'])
-            ->where('id_parrent', '0')
-            ->orderBy('urutan', 'asc')
+            ->select(['menus.id', 'menus.id_parrent', 'menus.menu', 'menus.link', 'menus.urutan'])
+            ->join('role_menus', 'menus.id', '=', 'role_menus.id_menus')
+            ->where('role_menus.id_roles', Auth::user()->id_role)
+            ->where('menus.id_parrent', '0')
+            ->orderBy('menus.urutan', 'asc')
             ->get();
 
         foreach ($parrents as $parrent) {
@@ -51,16 +53,20 @@ class BaseController extends Controller
     {
         $menus = [];
         $childs = DB::table('menus')
-            ->select(['id', 'id_parrent', 'menu', 'link', 'urutan'])
-            ->where('id_parrent', $id_menu)
-            ->orderBy('urutan', 'asc')
+            ->select(['menus.id', 'menus.id_parrent', 'menus.menu', 'menus.link', 'menus.urutan'])
+            ->join('role_menus', 'menus.id', '=', 'role_menus.id_menus')
+            ->where('role_menus.id_roles', Auth::user()->id_role)
+            ->where('menus.id_parrent', $id_menu)
+            ->orderBy('menus.urutan', 'asc')
             ->get();
 
         foreach ($childs as $child) {
             $level3 = DB::table('menus')
-                ->select(['id', 'id_parrent', 'menu', 'link', 'urutan'])
-                ->where('id_parrent', $child->id)
-                ->orderBy('urutan', 'asc')
+                ->select(['menus.id', 'menus.id_parrent', 'menus.menu', 'menus.link', 'menus.urutan'])
+                ->join('role_menus', 'menus.id', '=', 'role_menus.id_menus')
+                ->where('role_menus.id_roles', Auth::user()->id_role)
+                ->where('menus.id_parrent', $id_menu)
+                ->orderBy('menus.urutan', 'asc')
                 ->get();
 
             $child->childs = $level3;
