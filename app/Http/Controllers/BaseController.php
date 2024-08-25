@@ -65,7 +65,7 @@ class BaseController extends Controller
                 ->select(['menus.id', 'menus.id_parrent', 'menus.menu', 'menus.link', 'menus.urutan', 'menus.icon'])
                 ->join('role_menus', 'menus.id', '=', 'role_menus.id_menus')
                 ->where('role_menus.id_roles', Auth::user()->id_role)
-                ->where('menus.id_parrent', $id_menu)
+                ->where('menus.id_parrent', $child->id)
                 ->orderBy('menus.urutan', 'asc')
                 ->get();
 
