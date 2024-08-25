@@ -207,13 +207,10 @@ class RoleController extends Controller
     {
         try {
             $menus = DB::table('role_menus')
-                ->select([
-                    "role_menus.*",
-                    "menus.menu",
-                    "menus.link"
-                ])
+                ->select(["role_menus.*", "menus.menu", "menus.link", "menus.id_parrent"])
                 ->join("menus", "menus.id", "=", "role_menus.id_menus")
                 ->where('role_menus.id_roles', $roleId)
+                ->where('menus.id_parrent', '0')
                 ->get();
 
             // GET ACCESS FUNCTION
@@ -229,6 +226,56 @@ class RoleController extends Controller
                 }
 
                 $menus[$key]->access_function = $access;
+            }
+
+            // MENU LEVEL 2
+            foreach ($menus as $keyLev2 => $level2) {
+                $menusLev2 = DB::table('role_menus')
+                    ->select(["role_menus.*", "menus.menu", "menus.link", "menus.id_parrent"])
+                    ->join("menus", "menus.id", "=", "role_menus.id_menus")
+                    ->where('role_menus.id_roles', $roleId)
+                    ->where('menus.id_parrent', $level2->id_menus)
+                    ->get();
+                // GET ACCESS FUNCTION
+                foreach ($menusLev2 ?? [] as $kAcL2 => $menu) {
+                    $access = [];
+                    $accessFunctions = DB::table('role_menu_accesses')
+                        ->select(['access_code'])
+                        ->where('id_menus', $menu->id_menus)
+                        ->where('id_roles', $menu->id_roles)
+                        ->get();
+                    foreach ($accessFunctions as $acc) {
+                        $access = array_merge($access, [$acc->access_code]);
+                    }
+                    $menusLev2[$kAcL2]->access_function = $access;
+                }
+
+                // MANU LEVEL 3
+                foreach ($menusLev2 as $keyLev3 => $level3) {
+                    $menusLev3 = DB::table('role_menus')
+                        ->select(["role_menus.*", "menus.menu", "menus.link", "menus.id_parrent"])
+                        ->join("menus", "menus.id", "=", "role_menus.id_menus")
+                        ->where('role_menus.id_roles', $roleId)
+                        ->where('menus.id_parrent', $level3->id_menus)
+                        ->get();
+                    
+                        // GET ACCESS FUNCTION
+                    foreach ($menusLev3 ?? [] as $kAcL3 => $menu) {
+                        $access = [];
+                        $accessFunctions = DB::table('role_menu_accesses')
+                            ->select(['access_code'])
+                            ->where('id_menus', $menu->id_menus)
+                            ->where('id_roles', $menu->id_roles)
+                            ->get();
+                        foreach ($accessFunctions as $acc) {
+                            $access = array_merge($access, [$acc->access_code]);
+                        }
+                        $menusLev3[$kAcL3]->access_function = $access;
+                    }
+                    $menusLev2[$keyLev3]->childs = $menusLev3;
+                }
+
+                $menus[$keyLev2]->childs = $menusLev2;
             }
 
             return response()->json([
