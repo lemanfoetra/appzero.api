@@ -40,13 +40,17 @@ class ApiRoleAccess
     private function haveAccess($keyRoute, $method)
     {
         $apiModule = DB::table('api_modules')
-            ->select(['id'])
+            ->select(['id', 'id_menus'])
             ->where('method', strtoupper(trim($method)))
             ->where('key', $keyRoute)
             ->first();
 
         if (!isset($apiModule->id)) {
             throw new Exception("URL_NOT_LISTING");
+        }
+
+        if ($apiModule->id_menus === 0) {
+            return true;
         }
 
         $access = DB::table('role_api_modules')
