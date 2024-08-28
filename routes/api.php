@@ -36,6 +36,7 @@ Route::middleware(['auth:sanctum', 'check.token.expiration'])->group(function ()
 
     Route::prefix('base')->group(function () {
         Route::get('/menus', [BaseController::class, 'menus'])->middleware("api.role:base_menus");
+        Route::get('/menu_access', [BaseController::class, 'menuAccess'])->middleware("api.role:base_menu_access");
     });
 
     Route::prefix('user_management')->group(function () {

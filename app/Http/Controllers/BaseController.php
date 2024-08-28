@@ -30,6 +30,45 @@ class BaseController extends Controller
     }
 
 
+    public function menuAccess()
+    {
+        try {
+            $menus = DB::table('menus')
+                ->select(['menus.id', 'menus.link'])
+                ->join('role_menus', 'menus.id', '=', 'role_menus.id_menus')
+                ->where('role_menus.id_roles', Auth::user()->id_role)
+                ->whereNotNull('link')
+                ->orderBy('menus.urutan', 'asc')
+                ->get();
+
+            foreach ($menus ?? [] as $key => $menu) {
+                $access = [];
+                $accessFunctions = DB::table('role_menu_accesses')
+                    ->select(['access_code'])
+                    ->where('id_menus', $menu->id)
+                    ->where('id_roles', Auth::user()->id_role)
+                    ->get();
+                foreach ($accessFunctions as $acc) {
+                    $access = array_merge($access, [$acc->access_code]);
+                }
+                $menus[$key]->access = $access;
+            }
+
+            return response()->json([
+                'success'   => true,
+                'message'   => 'success',
+                'data'      => $menus,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'   => false,
+                'message'   => $th->getMessage(),
+                'data'      => [],
+            ], 500);
+        }
+    }
+
+
     private function getListMenus()
     {
         $menus = [];
