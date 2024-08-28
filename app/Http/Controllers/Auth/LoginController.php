@@ -36,6 +36,12 @@ class LoginController extends Controller
             ->where('id', $idToken)
             ->update(['expires_at'  => $this->expiredToken]);
 
+        // HAPUS TOKEN LAMA BAHKAN YG MASIH AKTIF
+        DB::table('personal_access_tokens')
+            ->where('tokenable_id', $user->id)
+            ->whereNotIn('id', $idToken)
+            ->delete();
+
         return response()->json([
             'user'  => $user,
             'access_token' => $token,
