@@ -27,28 +27,15 @@ use Illuminate\Support\Facades\Route;
 Route::post('login', [LoginController::class, 'login']);
 Route::post('register', [RegisterController::class, 'index']);
 
+Route::middleware(['auth:sanctum', 'check.token.expiration'])->group(function () {
+    Route::get('refresh_token', [LoginController::class, 'refreshToken'])->middleware("api.role:refresh_token");
+});
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::prefix('expense')->group(function () {
-        Route::get('/', [ExpenseController::class, 'index']);
-        Route::post('/', [ExpenseController::class, 'store']);
-        Route::get('/{id}', [ExpenseController::class, 'show']);
-        Route::put('/{id}', [ExpenseController::class, 'update']);
-        Route::delete('/{id}', [ExpenseController::class, 'destroy']);
-    });
 
-    Route::prefix('dashboard')->group(function () {
-        Route::get('jumlah_pengeluaran_hari_ini', [DashboardController::class, 'pengeluaranHariIni']);
-        Route::get('jumlah_pengeluaran_minggu_ini', [DashboardController::class, 'pengeluaranMingguIni']);
-        Route::get('jumlah_pengeluaran_bulan_ini', [DashboardController::class, 'pengeluaranBulanIni']);
-
-        Route::get('detail_pengeluaran_hari_ini', [DashboardController::class, 'detailPengeluaranHariIni']);
-        Route::get('detail_pengeluaran_minggu_ini', [DashboardController::class, 'detailPengeluaranMingguIni']);
-        Route::get('detail_pengeluaran_bulan_ini', [DashboardController::class, 'detailPengeluaranBulanIni']);
-    });
+Route::middleware(['auth:sanctum', 'check.token.expiration'])->group(function () {
 
     Route::prefix('base')->group(function () {
-        Route::get('menus', [BaseController::class, 'menus'])->middleware("api.role:base_menus");
+        Route::get('/menus', [BaseController::class, 'menus'])->middleware("api.role:base_menus");
     });
 
     Route::prefix('user_management')->group(function () {
