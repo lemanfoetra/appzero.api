@@ -39,7 +39,7 @@ class LoginController extends Controller
         // HAPUS TOKEN LAMA BAHKAN YG MASIH AKTIF
         DB::table('personal_access_tokens')
             ->where('tokenable_id', $user->id)
-            ->whereNotIn('id', $idToken)
+            ->whereNotIn('id', [$idToken])
             ->delete();
 
         return response()->json([
